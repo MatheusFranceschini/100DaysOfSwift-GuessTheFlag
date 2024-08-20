@@ -16,28 +16,29 @@ class ViewController: UIViewController {
         "canada",
         "chile",
         "china",
-        "colombia",
+        "south africa",
         "egypt",
         "finland",
-        "france",
-        "greece", 
+        "sweden",
+        "greece",
         "india",
         "ireland",
         "italy",
         "jamaica",
         "japan",
         "mexico",
-        "netherlands",
-        "nigeria",
+        "germany",
+        "portugal",
         "philippines",
         "russia",
-        "south-korea",
+        "south korea",
         "switzerland",
         "turkey",
         "usa"
     ]
     
     var score: Int = 0
+    var correctAnswer: Int = 0
     
     private lazy var titleLabel: UILabel = {
        let label = UILabel()
@@ -49,15 +50,26 @@ class ViewController: UIViewController {
         return label
     }()
     
+    private lazy var countryLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "teste"
+        label.font = .systemFont(ofSize: 24, weight: .regular)
+        label.textColor = .black
+        label.textAlignment = .center
+        return label
+    }()
+    
     private lazy var button1: UIButton = {
        let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = 16
         button.clipsToBounds = true
-        button.setImage(UIImage(named: "usa"), for: .normal)
         button.layer.borderWidth = 1
         button.layer.borderColor = UIColor.lightGray.cgColor
         button.imageView?.contentMode = .scaleAspectFill
+        button.addTarget(self, action: #selector(buttonPressed), for: .touchUpInside)
+        button.tag = 0
         return button
     }()
     
@@ -66,10 +78,11 @@ class ViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = 16
         button.clipsToBounds = true
-        button.setImage(UIImage(named: "india"), for: .normal)
         button.layer.borderWidth = 1
         button.layer.borderColor = UIColor.lightGray.cgColor
         button.imageView?.contentMode = .scaleAspectFill
+        button.addTarget(self, action: #selector(buttonPressed), for: .touchUpInside)
+        button.tag = 1
         return button
     }()
     
@@ -78,10 +91,11 @@ class ViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = 16
         button.clipsToBounds = true
-        button.setImage(UIImage(named: "mexico"), for: .normal)
         button.layer.borderWidth = 1
         button.layer.borderColor = UIColor.lightGray.cgColor
         button.imageView?.contentMode = .scaleAspectFill
+        button.addTarget(self, action: #selector(buttonPressed), for: .touchUpInside)
+        button.tag = 2
         return button
     }()
 
@@ -96,6 +110,7 @@ class ViewController: UIViewController {
         view.backgroundColor = .systemBackground
         
         view.addSubview(titleLabel)
+        view.addSubview(countryLabel)
         view.addSubview(button1)
         view.addSubview(button2)
         view.addSubview(button3)
@@ -104,7 +119,10 @@ class ViewController: UIViewController {
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
-            button1.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 32),
+            countryLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
+            countryLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            
+            button1.topAnchor.constraint(equalTo: countryLabel.bottomAnchor, constant: 32),
             button1.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             button1.widthAnchor.constraint(equalToConstant: 320),
             button1.heightAnchor.constraint(equalToConstant: 160),
@@ -121,14 +139,31 @@ class ViewController: UIViewController {
         ])
     }
     
-    func askQuestion() {
+    func askQuestion(action: UIAlertAction! = nil) {
+        
+        countries.shuffle()
+        correctAnswer = Int.random(in: 0...2)
+        
         button1.setImage(UIImage(named: countries[0]), for: .normal)
         button2.setImage(UIImage(named: countries[1]), for: .normal)
         button3.setImage(UIImage(named: countries[2]), for: .normal)
+        
+        countryLabel.text = countries[correctAnswer].uppercased()
+    }
+    
+    @objc func buttonPressed(_ sender: UIButton) {
+        var title: String
+        
+        if sender.tag == correctAnswer {
+            title = "Correct answer"
+            score += 1
+        } else {
+            title = "Wrong answer"
+        }
+        
+        let alert = UIAlertController(title: title, message: "Your score is \(score)", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Continue", style: .default, handler: askQuestion))
+        present(alert, animated: true)
     }
 
 }
-//
-//#Preview {
-//    ViewController()
-//}
