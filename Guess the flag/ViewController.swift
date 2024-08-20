@@ -39,12 +39,13 @@ class ViewController: UIViewController {
     
     var score: Int = 0
     var correctAnswer: Int = 0
+    var currentQuestion: Int = 1
     
     private lazy var titleLabel: UILabel = {
        let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Guess the flag"
-        label.font = .systemFont(ofSize: 40, weight: .bold)
+        label.font = .boldSystemFont(ofSize: 32)
         label.textColor = .black
         label.textAlignment = .center
         return label
@@ -53,8 +54,7 @@ class ViewController: UIViewController {
     private lazy var countryLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "teste"
-        label.font = .systemFont(ofSize: 24, weight: .regular)
+        label.font = .systemFont(ofSize: 16, weight: .semibold)
         label.textColor = .black
         label.textAlignment = .center
         return label
@@ -98,12 +98,21 @@ class ViewController: UIViewController {
         button.tag = 2
         return button
     }()
+    
+    private lazy var scoreLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "Your score: 0"
+        label.font = .systemFont(ofSize: 16)
+        label.textAlignment = .center
+        label.textColor = .black
+        return label
+    }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setup()
         askQuestion()
-        // Do any additional setup after loading the view.
     }
     
     private func setup() {
@@ -114,6 +123,7 @@ class ViewController: UIViewController {
         view.addSubview(button1)
         view.addSubview(button2)
         view.addSubview(button3)
+        view.addSubview(scoreLabel)
         
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -122,7 +132,7 @@ class ViewController: UIViewController {
             countryLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
             countryLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
-            button1.topAnchor.constraint(equalTo: countryLabel.bottomAnchor, constant: 32),
+            button1.topAnchor.constraint(equalTo: countryLabel.bottomAnchor, constant: 24),
             button1.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             button1.widthAnchor.constraint(equalToConstant: 320),
             button1.heightAnchor.constraint(equalToConstant: 160),
@@ -135,7 +145,10 @@ class ViewController: UIViewController {
             button3.topAnchor.constraint(equalTo: button2.bottomAnchor, constant: 32),
             button3.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             button3.widthAnchor.constraint(equalToConstant: 320),
-            button3.heightAnchor.constraint(equalToConstant: 160)
+            button3.heightAnchor.constraint(equalToConstant: 160),
+            
+            scoreLabel.topAnchor.constraint(equalTo: button3.bottomAnchor, constant: 32),
+            scoreLabel.leadingAnchor.constraint(equalTo: button3.leadingAnchor)
         ])
     }
     
@@ -149,21 +162,52 @@ class ViewController: UIViewController {
         button3.setImage(UIImage(named: countries[2]), for: .normal)
         
         countryLabel.text = countries[correctAnswer].uppercased()
+        
+    }
+    
+    func restartGame(action: UIAlertAction! = nil) {
+        score = 0
+        currentQuestion = 1
+        scoreLabel.text = "Your score: 0"
+        askQuestion()
     }
     
     @objc func buttonPressed(_ sender: UIButton) {
+        
         var title: String
+        var correct: Bool = true
+        
+        
         
         if sender.tag == correctAnswer {
             title = "Correct answer"
+            correct = true
             score += 1
+            scoreLabel.text = "Your score: \(score)"
         } else {
             title = "Wrong answer"
+            correct = false
         }
         
-        let alert = UIAlertController(title: title, message: "Your score is \(score)", preferredStyle: .alert)
+        let alert = UIAlertController(title: title, message: correct ? "Your score is \(score)" : "This is \(countries[sender.tag].uppercased())", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Continue", style: .default, handler: askQuestion))
         present(alert, animated: true)
+        
+        
+        if currentQuestion == 10 {
+            alert.title = "Game Over!"
+            alert.message = "Your final score is \(score)"
+            alert.addAction(UIAlertAction(title: "Restart", style: .default, handler: restartGame))
+        }
+        
+        currentQuestion += 1
+        
     }
+    
+    
+    
+}
 
+#Preview {
+    ViewController()
 }
